@@ -22,4 +22,7 @@ interface ArticleDoa {
     @Query("DELETE FROM article")
     suspend fun deleteAllArticle()
 
+    @Query("DELETE FROM article WHERE id = :articleId")
+    suspend fun deleteArticle(articleId: Int)
+
 }

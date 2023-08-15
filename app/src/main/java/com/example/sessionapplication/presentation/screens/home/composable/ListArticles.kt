@@ -17,9 +17,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sessionapplication.data.reomte.model.news.model.Article
+import com.example.sessionapplication.presentation.screens.home.HomeViewModel
 
 @Composable
 fun ListArticles(list: List<Article>, onClick: (Article) -> Unit) {
@@ -43,7 +45,6 @@ fun ListArticles(list: List<Article>, onClick: (Article) -> Unit) {
                         .padding(10.dp)
                 ) {
 
-
                     Row(modifier = Modifier.fillMaxWidth()) {
                         Text(text = "title : ", fontWeight = FontWeight.Bold, fontSize = 22.sp)
                         Text(text = it?.title?:"" , fontSize = 17.sp)
@@ -63,11 +64,15 @@ fun ListArticles(list: List<Article>, onClick: (Article) -> Unit) {
                         text = it?.description?:"",
                         fontSize = 17.sp,
                         overflow = TextOverflow.Ellipsis,
-                        maxLines = 2,
+                        maxLines = 1,
 
                         )
-                    Button(onClick = { onClick(it) }) {
-                        Text(text = "Insert")
+                    Button(
+                        onClick = { onClick(it) },
+                        enabled = !it.isInsert ,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Text(text = if (!it.isInsert) "Insert" else "Delete")
                     }
 
                 }

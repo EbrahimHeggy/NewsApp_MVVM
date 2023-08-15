@@ -1,5 +1,6 @@
 package com.example.sessionapplication.presentation.screens.savedDataScreen
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sessionapplication.data.NewsRepository
@@ -32,12 +33,19 @@ class SaveDataViewModel : ViewModel() {
         }
     }
 
+
+
     fun deleteAll(){
         viewModelScope.launch {
             newRepo.deleteAllArticle()
         }
     }
 
+    fun deleteArticle(article: Article) {
+        viewModelScope.launch {
+            newRepo.deleteArticle(article)
+        }
+    }
 
 }
 

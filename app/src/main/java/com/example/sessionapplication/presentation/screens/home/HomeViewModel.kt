@@ -8,14 +8,16 @@ import com.example.sessionapplication.data.local.dp.ArticleDatabase
 import com.example.sessionapplication.data.reomte.model.news.model.Article
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.nio.file.Files.find
 
 class HomeViewModel : ViewModel() {
     private val newsRepo = NewsRepository()
     private val _state = MutableStateFlow(HomeState())
     val state = _state.asStateFlow()
-
+    
     init {
         getArticles()
     }
@@ -24,7 +26,8 @@ class HomeViewModel : ViewModel() {
         _state.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             kotlin.runCatching {
-                newsRepo.getNews("bitcoins")
+                val remoteList = newsRepo.getNews("bitcoins")
+                remoteList.onEach { it.isInsert = isArticleAlreadySaved(it) }
                 _state.update {
                     it.copy(isLoading = false, list = newsRepo.getNews("bitCoin"))
                 }
@@ -39,21 +42,27 @@ class HomeViewModel : ViewModel() {
         }
     }
 
+    private suspend fun isArticleAlreadySaved(article: Article): Boolean {
+        return newsRepo.getAllArticle().first().find {
+            it.title == article.title
+        } != null
+
+    }
 
     fun insertArticle(article: Article) {
         viewModelScope.launch {
-            val x = newsRepo.insertNews(article)
-            Log.i("OnInsert", article.id.toString())
+            if (isArticleAlreadySaved(article)) return@launch
+            newsRepo.insertNews(article)
+            Log.d("OnInsert", article.id.toString())
         }
-
     }
+
 
     fun dismissDialog() {
         _state.update {
             it.copy(dialogModel = null)
         }
     }
-
 
 }
 
