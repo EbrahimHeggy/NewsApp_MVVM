@@ -10,10 +10,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -24,14 +29,21 @@ import com.example.sessionapplication.data.reomte.model.news.model.Article
 import com.example.sessionapplication.presentation.screens.home.HomeViewModel
 
 @Composable
-fun ListArticles(list: List<Article>, onClick: (Article) -> Unit) {
+fun ListArticles(list: List<Article>, text: String , isDependOnArticleFlag :Boolean=false,onClick: (Article, Int) -> Unit ) {
+
+    val deletedArticleIndices = remember { mutableStateListOf<Int>() }
+
     if (list.isNullOrEmpty()) return
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
 
-        items(list) {
+        itemsIndexed(list) {index,it->
+            val insertionState = remember { mutableStateOf(it.isInsert) }
+            val isArticleDeleted = index in deletedArticleIndices
+            //val buttonState = remember { mutableStateOf(isInsertState.value) }
+
             ElevatedCard(
                 Modifier
                     .fillMaxWidth()
@@ -68,11 +80,18 @@ fun ListArticles(list: List<Article>, onClick: (Article) -> Unit) {
 
                         )
                     Button(
-                        onClick = { onClick(it) },
-                        enabled = !it.isInsert ,
+                        onClick = {
+                            onClick(it,index)
+                            insertionState.value = !insertionState.value
+                            if (isArticleDeleted) {
+                                deletedArticleIndices.remove(index)
+                            }
+                                  },
+                        enabled = if(isDependOnArticleFlag) !insertionState.value && !isArticleDeleted  else true,
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        Text(text = if (!it.isInsert) "Insert" else "Delete")
+                        //Text(text = if (!it.isInsert) "Insert" else "Delete")
+                        Text(text = text)
                     }
 
                 }

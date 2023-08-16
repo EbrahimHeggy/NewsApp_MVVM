@@ -17,10 +17,8 @@ class HomeViewModel : ViewModel() {
     private val newsRepo = NewsRepository()
     private val _state = MutableStateFlow(HomeState())
     val state = _state.asStateFlow()
-    
-    init {
-        getArticles()
-    }
+
+
 
     fun getArticles() {
         _state.update { it.copy(isLoading = true) }
@@ -29,7 +27,7 @@ class HomeViewModel : ViewModel() {
                 val remoteList = newsRepo.getNews("bitcoins")
                 remoteList.onEach { it.isInsert = isArticleAlreadySaved(it) }
                 _state.update {
-                    it.copy(isLoading = false, list = newsRepo.getNews("bitCoin"))
+                    it.copy(isLoading = false, list = remoteList)
                 }
             }.getOrElse { error ->
                 _state.update {
@@ -49,13 +47,20 @@ class HomeViewModel : ViewModel() {
 
     }
 
-    fun insertArticle(article: Article) {
+    fun insertArticle(article: Article, index: Int) {
         viewModelScope.launch {
             if (isArticleAlreadySaved(article)) return@launch
+            val list = _state.value.list.toMutableList()
+            list[index].isInsert = true
+            _state.update {
+                it.copy(list = list)
+            }
             newsRepo.insertNews(article)
             Log.d("OnInsert", article.id.toString())
         }
     }
+
+
 
 
     fun dismissDialog() {

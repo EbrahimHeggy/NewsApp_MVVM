@@ -24,6 +24,7 @@ class NewsRepository(
     fun getAllArticle(): Flow<List<Article>> = db.articleDoa().getAllArticle()
 
     suspend fun deleteAllArticle() = db.articleDoa().deleteAllArticle()
+
     suspend fun deleteArticle(article: Article) = db.articleDoa().deleteArticle(article.id)
 
 

@@ -22,9 +22,10 @@ fun SaveDataScreen(viewModel: SaveDataViewModel, navController: NavHostControlle
         Box(modifier = Modifier
             .padding(it)
             .fillMaxSize() ){
-            ListArticles(list = state.list) {
-                 viewModel.deleteArticle(it)
+            ListArticles(list = state.list, "Delete", isDependOnArticleFlag = false) { article, index ->
+                viewModel.deleteArticle(article, index)
             }
+
             Button(onClick = { viewModel.deleteAll() }, modifier = Modifier.align(Alignment.BottomCenter)) {
                 Text(text = "DeleteAll")
             }

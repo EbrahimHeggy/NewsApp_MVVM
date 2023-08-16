@@ -8,6 +8,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -21,6 +22,9 @@ import com.example.sessionapplication.presentation.screens.home.composable.ListA
 @Composable
 fun HomeScreen(viewModel: HomeViewModel, navController: NavController) {
     val state by viewModel.state.collectAsState()
+    LaunchedEffect(key1 = Unit){
+        viewModel.getArticles()
+    }
     Scaffold(modifier = Modifier.fillMaxSize()) {
         ErrorDialog(
             shouldShow = state.dialogModel?.isShouldShow ?: false,
@@ -36,9 +40,12 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavController) {
                 .fillMaxSize()
         ) {
             LoadingScreen(isLoading = state.isLoading, modifier = Modifier.align(Alignment.Center))
-            ListArticles(list = state.list) {
-                viewModel.insertArticle(it)
+            ListArticles(list = state.list, "Insert", isDependOnArticleFlag = true) { article, index ->
+                if (!article.isInsert) {
+                    viewModel.insertArticle(article, index)
+                }
             }
+
             Button(
                 onClick = { navController.navigate("savedData") }, modifier = Modifier.align(
                     Alignment.BottomCenter
